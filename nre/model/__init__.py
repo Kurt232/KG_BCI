@@ -6,4 +6,5 @@ from .softmax_nn import SoftmaxNN
 
 __all__ = [
     'SentenceRE',
+    'SoftmaxNN',
 ]
