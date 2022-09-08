@@ -1,4 +1,7 @@
 .vscode/
 bert-base-uncased/
+bert-base-chinese/
 glove/
 =*
+# download bert chinese
+!download_bert_chinese.sh

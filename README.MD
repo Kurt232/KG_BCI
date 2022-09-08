@@ -17,3 +17,8 @@ torch自行安装
 >python3 test.py
 
 然后根据报错信息，再pip安装所需要的包
+
+## 运行download_bert_chinese.sh脚本
+
+[resource](https://huggingface.co/bert-base-chinese)  
+下载中文bert预训练模型  
