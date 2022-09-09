@@ -2,7 +2,7 @@
 import torch
 import numpy as np
 import json
-from . import encoder, model, framework
+import encoder, model, framework
 import sys
 import os
 import argparse
@@ -17,8 +17,7 @@ def set_seed(seed):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--pretrain_path', default='bert-base-chinese', 
-        help='Pre-trained ckpt path / model name (hugginface)')
+parser.add_argument('--pretrain_path', default='bert-base-chinese')
 parser.add_argument('--ckpt', default='', 
         help='Checkpoint name')
 parser.add_argument('--pooler', default='entity', choices=['cls', 'entity'], 
@@ -72,7 +71,7 @@ ckpt = 'ckpt/{}.pth.tar'.format(args.ckpt)
 
 #FIXME use our dataset
 if args.dataset != 'none':
-    opennre.download(args.dataset, root_path=root_path)
+    args.dataset = "bci"
     args.train_file = os.path.join(root_path, 'benchmark', args.dataset, '{}_train.txt'.format(args.dataset))
     args.val_file = os.path.join(root_path, 'benchmark', args.dataset, '{}_val.txt'.format(args.dataset))
     args.test_file = os.path.join(root_path, 'benchmark', args.dataset, '{}_test.txt'.format(args.dataset))
@@ -80,10 +79,7 @@ if args.dataset != 'none':
         logging.warn("Test file {} does not exist! Use val file instead".format(args.test_file))
         args.test_file = args.val_file
     args.rel2id_file = os.path.join(root_path, 'benchmark', args.dataset, '{}_rel2id.json'.format(args.dataset))
-    if args.dataset == 'wiki80':
-        args.metric = 'acc'
-    else:
-        args.metric = 'micro_f1'
+    args.metric = 'micro_f1'
 else:
     if not (os.path.exists(args.train_file) and os.path.exists(args.val_file) and os.path.exists(args.test_file) and os.path.exists(args.rel2id_file)):
         raise Exception('--train_file, --val_file, --test_file and --rel2id_file are not specified or files do not exist. Or specify --dataset')

@@ -4,7 +4,7 @@ with open("./data/middle.json", "r") as fp:
     data = json.load(fp)
     fp.close()
 
-with open("./data/train.txt", "a") as fp:
+with open("./data/raw_train.txt", "a") as fp:
     id = 0
     for e in data:
         id = id + 1
