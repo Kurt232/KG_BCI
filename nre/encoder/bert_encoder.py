@@ -6,11 +6,6 @@ from transformers import BertModel, BertTokenizer
 # pretrain_path: ./bert-base-chinesee/
 class BERTEncoder(nn.Module):
     def __init__(self, max_length, pretrain_path, blank_padding=True, mask_entity=False):
-        """
-        Args:
-            max_length: max length of sentence
-            pretrain_path: path of pretrain model
-        """
         super().__init__()
         self.max_length = max_length
         self.blank_padding = blank_padding
@@ -21,24 +16,11 @@ class BERTEncoder(nn.Module):
         self.tokenizer = BertTokenizer.from_pretrained(pretrain_path)
 
     def forward(self, token, att_mask, pos1, pos2):
-        """
-        Args:
-            token: (B, L), index of tokens
-            att_mask: (B, L), attention mask (1 for contents and 0 for padding)
-        Return:
-            (B, H), representations for sentences
-        """
         _, x = self.bert(token, attention_mask=att_mask, return_dict=False)
         #return_dict=fault is set to adapt to the new version of transformers
         return x
 
     def tokenize(self, item):
-        """
-        Args:
-            item: data instance containing 'text' / 'token', 'h' and 't'
-        Return:
-            Name of the relation of the sentence
-        """
         # Sentence -> token
         if 'text' in item:
             sentence = item['text']
@@ -105,11 +87,6 @@ class BERTEncoder(nn.Module):
 
 class BERTEntityEncoder(nn.Module):
     def __init__(self, max_length, pretrain_path, blank_padding=True, mask_entity=False):
-        """
-        Args:
-            max_length: max length of sentence
-            pretrain_path: path of pretrain model
-        """
         super().__init__()
         self.max_length = max_length
         self.blank_padding = blank_padding
@@ -120,17 +97,8 @@ class BERTEntityEncoder(nn.Module):
         self.tokenizer = BertTokenizer.from_pretrained(pretrain_path)
         self.linear = nn.Linear(self.hidden_size, self.hidden_size)
 
-    def forward(self, token, att_mask, pos1, pos2):
-        """
-        Args:
-            token: (B, L), index of tokens
-            att_mask: (B, L), attention mask (1 for contents and 0 for padding)
-            pos1: (B, 1), position of the head entity starter
-            pos2: (B, 1), position of the tail entity starter
-        Return:
-            (B, 2H), representations for sentences
-        """
-        hidden, _ = self.bert(token, attention_mask=att_mask, return_dict=False)
+    def forward(self, token, att_mask, pos1, pos2): 
+        self.bert(token, attention_mask=att_mask, return_dict=False)
         # Get entity start hidden state
         onehot_head = torch.zeros(hidden.size()[:2]).float().to(hidden.device)  # (B, L)
         onehot_tail = torch.zeros(hidden.size()[:2]).float().to(hidden.device)  # (B, L)
@@ -143,12 +111,6 @@ class BERTEntityEncoder(nn.Module):
         return x
 
     def tokenize(self, item):
-        """
-        Args:
-            item: data instance containing 'text' / 'token', 'h' and 't'
-        Return:
-            Name of the relation of the sentence
-        """
         # Sentence -> token
         if 'text' in item:
             sentence = item['text']

@@ -1,10 +1,18 @@
 import json
-import jieba
+# import jieba
+
+def get_pose(text, E_name):
+    result = []
+    pose_1 = text.find(E_name)
+    pose_2 = pose_1+len(E_name)-1
+    result.append(pose_1)
+    result.append(pose_2)
+    return result
 
 with open('./data/raw_train.txt', 'r') as fp , \
     open('./data/bci_train.txt', "w+") as fp1:
     # line = fp.readline()#skip
-    relation = {}
+    rel2id = {}
     cnt = 0
     # line = fp.readline().split()
     # print(jieba.lcut(line[1], cut_all = False))
@@ -15,62 +23,28 @@ with open('./data/raw_train.txt', 'r') as fp , \
         if not line:
             break
         
-        line = line.split() ##句子id 实体1 实体2 句子 关系
+        _, E1, E2, text, rel = line.split() ##句子id 实体1 实体2 句子 关系
 
         sentence = {}
-        sentence['token'] = jieba.lcut(line[3], cut_all=False)
+        # sentence['token'] = jieba.lcut(line[3], cut_all=False)
+        sentence["token"] = list(text)
         h = {}
-        name = jieba.lcut(line[1], cut_all=False)
-        assert len(name)>= 1
-        h['name'] = name[0]
-        for i in range(1, len(name)):
-            h['name'] = h['name'] + " " + name[i]
-        
-        for ix in range(0, len(sentence['token'])-len(name)):
-            f = True
-            for iy, vy in enumerate(name):
-                if vy != sentence['token'][ix+iy]:
-                    f = False
-                    break
-            
-            if f:
-                h['pos'] = [ix, ix + len(name)]
-        sentence['h'] = h
-
+        h["name"] = E1
+        h["pos"] = get_pose(text, E1) 
+        sentence["h"] = h
         t = {}
-        name = jieba.lcut(line[2], cut_all=False)
-        assert len(name)>= 1
-        t['name'] = name[0]
-        for i in range(1, len(name)):
-            t['name'] = t['name'] + " " + name[i]
-        
-        for ix in range(0, len(sentence['token'])-len(name)):
-            f = True
-            for iy, vy in enumerate(name):
-                if vy != sentence['token'][ix+iy]:
-                    f = False
-                    break
-            
-            if f:
-                t['pos'] = [ix, ix + len(name)]
-                break
+        t["name"] = E2
+        t["pos"] = get_pose(text, E2)
+        sentence["t"] = t
+        sentence["relation"] = rel
 
-        sentence['t'] = t
-
-        relation_cut = jieba.lcut(line[4], cut_all=False)
-        assert len(relation_cut) >= 1
-        sentence['relation'] = relation_cut[0]
-        for i  in range(1, len(relation_cut)):
-            sentence['relation'] = sentence['relation'] + " " + relation_cut[i]
-        
-        if sentence['relation'] not in relation.keys():
-            relation[sentence['relation']] = cnt
+        if sentence['relation'] not in rel2id.keys():
+            rel2id[sentence['relation']] = cnt
             cnt = cnt + 1
 
         s = json.dumps(sentence, ensure_ascii=False)
         fp1.write(s + "\n")
 
 with open('./data/bci_rel2id.json', 'w') as fp:
-    print(relation)
-    json.dump(relation, fp)
+    json.dump(rel2id, fp, ensure_ascii=False)
 
